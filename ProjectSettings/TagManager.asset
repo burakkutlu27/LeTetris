@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 3
+  tags:
+  - Spawner
+  - Board
+  - ScoreManager
+  - FollowShapeManager
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - DragAndDropTarget
+  - 
+  - Shapes
+  - Effects
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 3833301075
+    locked: 0
+  - name: Tile
+    uniqueID: 2038726103
+    locked: 0
+  - name: Shapes
+    uniqueID: 2956358169
+    locked: 0
+  - name: Effects
+    uniqueID: 4187344397
+    locked: 0
+  m_RenderingLayers:
+  - Default
