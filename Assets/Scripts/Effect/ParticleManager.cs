@@ -6,6 +6,12 @@ public class ParticleManager : MonoBehaviour
     private void Start()
     {
         allEffects = GetComponentsInChildren<ParticleSystem>();
+        
+        // Başlangıçta tüm efektleri durdur (Play On Awake durumunda bile)
+        foreach (ParticleSystem effect in allEffects)
+        {
+            effect.Stop();
+        }
     }
 
     public void PlayEffect()

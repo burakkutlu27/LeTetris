@@ -23,7 +23,8 @@ public class SoundManager : MonoBehaviour
     private void Start()
     {
         randomClip = GetRandomMusicClip(MusicClips);
-        PlayBackgroundMusic(randomClip);
+        // Müziği hemen başlatma, oyun başladığında başlatılacak
+        // PlayBackgroundMusic(randomClip);
     }
 
     public void PlaySFX(int clipIndex)
@@ -114,5 +115,16 @@ public class SoundManager : MonoBehaviour
         }
         if (fxicon != null)
             fxicon.ToggleIcon(IsSFXPlaying);
+    }
+    
+    // Oyun başladığında müziği başlat
+    public void StartGameMusic()
+    {
+        if (randomClip == null)
+        {
+            randomClip = GetRandomMusicClip(MusicClips);
+        }
+        PlayBackgroundMusic(randomClip);
+        Debug.Log("Game music started!");
     }
 }

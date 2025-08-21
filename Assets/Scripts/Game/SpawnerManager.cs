@@ -222,6 +222,27 @@ public class SpawnerManager : MonoBehaviour
         return replaceShape;
     }
     
+    // Overload: Belirli bir şekilden farklı replace shape oluştur
+    public ShapeManager CreateReplaceShape(int excludeShapeIndex)
+    {
+        // Aktif shape indeksini güncelle
+        currentActiveShapeIndex = excludeShapeIndex;
+        
+        // Replace shape'i oluştur
+        GameObject replaceShapeObj = Instantiate(allShapes[replaceShapeIndex], transform.position, Quaternion.identity);
+        ShapeManager replaceShape = replaceShapeObj.GetComponent<ShapeManager>();
+        if (replaceShape == null)
+        {
+            replaceShape = replaceShapeObj.GetComponentInChildren<ShapeManager>();
+        }
+        
+        // Yeni replace shape seç ve UI'ı güncelle (aktif shape'den farklı)
+        replaceShapeIndex = GetDifferentShapeIndex(excludeShapeIndex);
+        UpdateReplaceShapeUI();
+        
+        return replaceShape;
+    }
+    
     // Verilen shape indeksinden farklı bir shape indeksi döndür
     private int GetDifferentShapeIndex(int excludeIndex)
     {

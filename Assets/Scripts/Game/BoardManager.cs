@@ -178,6 +178,13 @@ public class BoardManager : MonoBehaviour
 
     public void ClearLines()
     {
+        // Oyun başlamadıysa satır temizleme işlemini yapma
+        GameManager gameManager = FindAnyObjectByType<GameManager>();
+        if (gameManager == null || !gameManager.gameStarted)
+        {
+            return;
+        }
+        
         bool lineCleared = false;
         bool boardCompletelyCleared = false;
         int linesCleared = 0;

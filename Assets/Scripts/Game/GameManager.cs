@@ -13,7 +13,9 @@ public class GameManager : MonoBehaviour
     [Header("Game Settings")]
     [Range(0.05f, 1f)]
     [SerializeField] private float moveInterval = 0.5f;
+    [SerializeField] private float fastDropInterval = 0.1f; // Hızlı düşüş için daha kısa interval
     private float moveTimer;
+    private bool isFastDropping = false; // Aşağı ok tuşuna basılı tutulup tutulmadığını kontrol et
 
     public bool gameOver = false;
     public bool gameStarted = false; // Oyun başlatıldı mı kontrolü
@@ -71,6 +73,13 @@ public class GameManager : MonoBehaviour
         {
             gameStarted = true;
             Debug.Log("Starting game for the first time...");
+            
+            // Oyun başladığında müziği başlat
+            if (SoundManager.instance != null)
+            {
+                SoundManager.instance.StartGameMusic();
+            }
+            
             StartCoroutine(DelayedStart());
         }
         else
@@ -160,20 +169,41 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        // Aşağı ok tuşu kontrolü - basılı tutma destekli
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            isFastDropping = true;
+        }
+        else
+        {
+            isFastDropping = false;
+        }
+
+        // Tek basım ile manuel hareket (eski davranış korunuyor)
         if (Input.GetKeyDown(KeyCode.DownArrow)) MoveShapeDown();
 
-        // Otomatik aşağı inme
+        // Otomatik aşağı inme - hızlı düşüş moduna göre interval ayarla
+        float currentMoveInterval = isFastDropping ? fastDropInterval : moveInterval;
         moveTimer += Time.deltaTime;
-        if (moveTimer >= moveInterval)
+        if (moveTimer >= currentMoveInterval)
         {
             moveTimer = 0;
             MoveShapeDown();
-            SoundManager.instance.PlaySFX(3);
+            if (!isFastDropping) // Normal hızda ses çal, hızlı düşüşte çok fazla ses olmasın
+            {
+                SoundManager.instance.PlaySFX(3);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             isClockWise = !isClockWise;
+        }
+
+        // Space tuşu ile shape değiştirme
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ChangeReplaceShape();
         }
     }
     //Şekilin oturması fonskiyonu
@@ -313,17 +343,40 @@ public class GameManager : MonoBehaviour
 
     public void ChangeReplaceShape()
     {
-        if(canReplaceShape)
+        if(canReplaceShape && activeShape != null && replaceShape != null)
         {
-            canReplaceShape=false;
+            canReplaceShape = false;
+            
+            // Ses efekti çal
+            SoundManager.instance.PlaySFX(3);
+            
+            // Mevcut aktif şeklin pozisyonunu kaydet
+            Vector3 currentPosition = activeShape.transform.position;
+            
+            // Aktif şekli deaktif et
             activeShape.gameObject.SetActive(false);
+            
+            // Replace şeklini aktif et ve pozisyonunu ayarla
             replaceShape.gameObject.SetActive(true);
-            replaceShape.transform.position = activeShape.transform.position;
-            activeShape=replaceShape;
+            replaceShape.transform.position = currentPosition;
+            
+            // Şekilleri değiştir
+            activeShape = replaceShape;
+            
+            // Yeni replace şekli oluştur (aktif şekilden farklı olacak şekilde)
+            replaceShape = spawnerManager.CreateReplaceShape();
+            if (replaceShape != null)
+            {
+                replaceShapeImage.sprite = replaceShape.PreviewSprite;
+                replaceShape.gameObject.SetActive(false);
+            }
         }
-        if(followShape)
+        
+        // Ghost piece'i güncelle
+        if(followShape && activeShape != null)
         {
             followShape.ResetFollowShape();
+            followShape.CreateFollowShape(activeShape, boardManager);
         }   
     }
 }
