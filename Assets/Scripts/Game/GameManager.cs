@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using DG.Tweening;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
@@ -36,6 +37,7 @@ public class GameManager : MonoBehaviour
     private bool canReplaceShape = true;
 
     public ParticleManager[] levelUpParticals = new ParticleManager[5];
+    public ParticleManager[] gameOverParticals = new ParticleManager[5];
 
     private void Awake()
     {
@@ -270,9 +272,9 @@ public class GameManager : MonoBehaviour
         if (boardManager.IsGameOver())
         {
             gameOver = true;
-            if (gameOverPanel != null)
+            if(gameOverPanel)
             {
-                gameOverPanel.SetActive(true);
+                StartCoroutine(GameOverFNC());
             }
             Debug.Log("Game Over! Board is too full to continue!");
             SoundManager.instance.PlaySFX(6); // SFX for game over
@@ -392,6 +394,25 @@ public class GameManager : MonoBehaviour
             levelUpParticals[counter].PlayEffect();
             counter++;
             yield return new WaitForSeconds(.2f);
+        }
+    }
+
+    IEnumerator GameOverFNC()
+    {
+        yield return new WaitForSeconds(.2f);
+        int counter = 0;
+        while (counter < gameOverParticals.Length)
+        {
+            gameOverParticals[counter].PlayEffect();
+            counter++;
+            yield return new WaitForSeconds(.2f);
+        }
+        yield return new WaitForSeconds(1f);
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.transform.localScale = Vector3.zero;  
+            gameOverPanel.SetActive(true);
+            gameOverPanel.transform.DOScale(1,5f).SetEase(Ease.OutBack);
         }
     }
 }
