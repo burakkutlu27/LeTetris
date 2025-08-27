@@ -14,7 +14,7 @@ public class BoardManager : MonoBehaviour
     private FollowShapeManager followShape;
     public BoardManager boardManager;
 
-    public ParticleManager lineEffect;
+    public ParticleManager[] lineEffects = new ParticleManager[4];
     
     private void Awake()
     {
@@ -188,11 +188,14 @@ public class BoardManager : MonoBehaviour
         bool lineCleared = false;
         bool boardCompletelyCleared = false;
         int linesCleared = 0;
+        List<int> clearedLineYPositions = new List<int>(); // Silinen satırların Y pozisyonları
+        
         for (int y = height - 1; y >= 0; y--)
         {
             if (IsLineFull(y))
             {
-                ClearLine(y);
+                clearedLineYPositions.Add(y); // Y pozisyonunu kaydet
+                ClearLine(y, linesCleared); // Kaçıncı line olduğunu da gönder
                 MoveAllLinesDown(y + 1);
                 y++; // Aynı satırı tekrar kontrol et
                 lineCleared = true;
@@ -236,10 +239,10 @@ public class BoardManager : MonoBehaviour
         return true;
     }
 
-    void ClearLine(int y)
+    void ClearLine(int y, int lineIndex)
     {
-        // Line effect'i çal
-        PlayLineEffect(y);
+        // Line effect'i çal - kaçıncı line siliniyorsa o efekti kullan
+        PlayLineEffect(lineIndex, y);
         
         for (int x = 0; x < width; x++)
         {
@@ -286,12 +289,18 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    void PlayLineEffect(int y)
+    void PlayLineEffect(int whichLine, int y)
     {
-        if(lineEffect)
+        // Array sınırları içinde mi kontrol et
+        if (whichLine >= 0 && whichLine < lineEffects.Length && lineEffects[whichLine] != null)
         {
-            lineEffect.transform.position = new Vector3(0, y, 0);
-            lineEffect.PlayEffect();
+            lineEffects[whichLine].transform.position = new Vector3(0, y, 0);
+            lineEffects[whichLine].PlayEffect();
+            Debug.Log($"Line effect {whichLine} played at line {y}");
+        }
+        else
+        {
+            Debug.LogWarning($"Line effect {whichLine} is null or out of bounds!");
         }
     }
 }

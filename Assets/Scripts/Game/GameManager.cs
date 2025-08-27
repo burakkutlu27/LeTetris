@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
@@ -34,6 +35,8 @@ public class GameManager : MonoBehaviour
 
     private bool canReplaceShape = true;
 
+    public ParticleManager[] levelUpParticals = new ParticleManager[5];
+
     private void Awake()
     {
         spawnerManager = GameObject.FindGameObjectWithTag("Spawner").GetComponent<SpawnerManager>();
@@ -56,7 +59,7 @@ public class GameManager : MonoBehaviour
         // Level arttıkça moveInterval’ı küçült
         // Minimum hızı 0.1f ile sınırlayalım
         moveInterval = Mathf.Max(0.1f, moveInterval - 0.075f);
-
+        StartCoroutine(LevelUpFNC());
         Debug.Log($"Level {newLevel} → Yeni hız: {moveInterval}");
     }
     private System.Collections.IEnumerator DelayedStart()
@@ -378,5 +381,17 @@ public class GameManager : MonoBehaviour
             followShape.ResetFollowShape();
             followShape.CreateFollowShape(activeShape, boardManager);
         }   
+    }
+
+    IEnumerator LevelUpFNC()
+    {
+        yield return new WaitForSeconds(.2f);
+        int counter = 0;
+        while (counter < levelUpParticals.Length)
+        {
+            levelUpParticals[counter].PlayEffect();
+            counter++;
+            yield return new WaitForSeconds(.2f);
+        }
     }
 }
