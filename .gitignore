@@ -110,3 +110,6 @@ GoogleService-Info.plist
 # Package Manager generated files
 /[Pp]ackages/manifest.json.backup
 /[Pp]ackages/packages-lock.json
+
+# Output files
+/Outputs/

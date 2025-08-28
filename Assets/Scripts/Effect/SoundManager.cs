@@ -16,15 +16,43 @@ public class SoundManager : MonoBehaviour
 
     public IconManager fxicon;
     public IconManager musicicon;
+    
     private void Awake()
     {
         instance = this;
     }
+    
     private void Start()
     {
         randomClip = GetRandomMusicClip(MusicClips);
-        // Müziği hemen başlatma, oyun başladığında başlatılacak
+        // Müziği otomatik başlatma - sadece gerektiğinde başlatılacak
         // PlayBackgroundMusic(randomClip);
+        
+        // PlayerPrefs'ten ses ayarlarını yükle
+        LoadVolumeSettings();
+    }
+    
+    private void LoadVolumeSettings()
+    {
+        if (musicSource != null)
+        {
+            // Music volume'u PlayerPrefs'ten yükle
+            if (PlayerPrefs.HasKey("MusicVolume"))
+            {
+                musicSource.volume = PlayerPrefs.GetFloat("MusicVolume");
+            }
+            else
+            {
+                // Varsayılan değer
+                musicSource.volume = 0.2f;
+            }
+        }
+    }
+    
+    private void Update()
+    {
+        // Müzik döngüsünü kontrol et
+        UpdateMusic();
     }
 
     public void PlaySFX(int clipIndex)
@@ -33,6 +61,15 @@ public class SoundManager : MonoBehaviour
         {
             AudioSource sfxSource = gameObject.AddComponent<AudioSource>();
             sfxSource.clip = SFXClips[clipIndex];
+            // SFX volume'unu PlayerPrefs'ten al
+            if (PlayerPrefs.HasKey("SoundVolume"))
+            {
+                sfxSource.volume = PlayerPrefs.GetFloat("SoundVolume");
+            }
+            else
+            {
+                sfxSource.volume = 0.5f; // Varsayılan değer
+            }
             sfxSource.Play();
         }
         else
@@ -47,12 +84,16 @@ public class SoundManager : MonoBehaviour
         {
             int randomSourceIndex = Random.Range(0, VocalClips.Length);
             VocalClips[randomSourceIndex].clip = VocalClips[randomSourceIndex].clip;
+            // Vocal sesleri için de volume ayarı
+            if (PlayerPrefs.HasKey("SoundVolume"))
+            {
+                VocalClips[randomSourceIndex].volume = PlayerPrefs.GetFloat("SoundVolume");
+            }
             VocalClips[randomSourceIndex].Play();
         }
     }
 
-
-        AudioClip GetRandomMusicClip(AudioClip[] clips)
+    AudioClip GetRandomMusicClip(AudioClip[] clips)
     {
         AudioClip rastgeleClip = clips[Random.Range(0, clips.Length)];
         return rastgeleClip;
@@ -67,6 +108,7 @@ public class SoundManager : MonoBehaviour
         musicSource.clip = musicClip;
         musicSource.Play();
     }
+    
     void UpdateMusic()
     {
         if (IsMusicPlaying)
@@ -85,6 +127,7 @@ public class SoundManager : MonoBehaviour
             }
         }
     }
+    
     public void ToggleMusic()
     {
         IsMusicPlaying = !IsMusicPlaying;
@@ -102,7 +145,6 @@ public class SoundManager : MonoBehaviour
         }
     }   
 
-
     public void ToggleSFX()
     {
         IsSFXPlaying = !IsSFXPlaying;
@@ -115,6 +157,39 @@ public class SoundManager : MonoBehaviour
         }
         if (fxicon != null)
             fxicon.ToggleIcon(IsSFXPlaying);
+    }
+    
+    // Public method to set music volume
+    public void SetMusicVolume(float volume)
+    {
+        if (musicSource != null)
+        {
+            musicSource.volume = volume;
+        }
+    }
+    
+    // Public method to get music volume
+    public float GetMusicVolume()
+    {
+        if (musicSource != null)
+        {
+            return musicSource.volume;
+        }
+        return 0f;
+    }
+    
+    // Public method to set SFX volume
+    public void SetSFXVolume(float volume)
+    {
+        // Mevcut SFX AudioSource'larının volume'unu güncelle
+        AudioSource[] allAudioSources = GetComponents<AudioSource>();
+        foreach (AudioSource audioSource in allAudioSources)
+        {
+            if (audioSource != musicSource) // Müzik değil, SFX ise
+            {
+                audioSource.volume = volume;
+            }
+        }
     }
     
     // Oyun başladığında müziği başlat
